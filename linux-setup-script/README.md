@@ -1,0 +1,1 @@
+I like to try different type of linux OS so i can't stick in one linux distro.Thats why i decided to make script that will help me to setup my linux desktop enviroment. I will update this as my requirements. Thanks 🙏
