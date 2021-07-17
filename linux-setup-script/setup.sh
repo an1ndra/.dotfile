@@ -38,7 +38,7 @@ Pin-Priority: 9999">>/etc/apt/preferences.d/pop-default-settings
 
 # Add Spotify Adblocker
 git clone https://github.com/MrTuNNe/Spotify-AdBlocker
-cd Spotify-AdBlocker
+d Spotify-AdBlocker
 sudo python3 spotify_adblock.py
 cd ..
 
