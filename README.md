@@ -2,7 +2,7 @@ I like to try different type of linux OS so i can't stick in one linux distro.Th
 
 # Install vlc vim git gimp telegram virtualbox code 🤖
 ```bash
-sudo apt-get install vlc nvim git gimp telegram virtualbox htop xfce4-terminal openjdk-11-jdk-headless neofetch curl wget -y
+sudo apt-get install vlc nvim git gimp telegram virtualbox htop xfce4-terminal openjdk-11-jdk-headless neofetch curl wget tmux -y
 ```
 # Download android-studio
 ```bash
