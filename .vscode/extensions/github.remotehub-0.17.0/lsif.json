@@ -1,0 +1,5 @@
+{
+	"project": "./tsconfig.json",
+	"out": "ms-vscode.remotehub-lsif",
+	"outputFormat": "line"
+}
