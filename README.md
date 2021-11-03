@@ -121,6 +121,12 @@ ln -s ~/.dotfiles/.profile ~/.profile
 ln -s ~/.dotfiles/.zsh_history ~/.zsh_history
 ln -s ~/.dotfiles/.zshrc ~/.zshrc
 ```
+# Download Insomnia
+```bash
+wget -O Insomnia.deb https://github.com/Kong/insomnia/releases/download/core%402021.6.0/Insomnia.Core-2021.6.0.deb
+sudo apt install ./Insomnia.deb
+```
+
 # Github branching model
 ```bash
                         Branching Model
