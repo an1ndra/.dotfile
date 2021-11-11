@@ -1,0 +1,1379 @@
+{
+	"name": "remotehub",
+	"private": true,
+	"displayName": "%displayName%",
+	"description": "%description%",
+	"publisher": "GitHub",
+	"version": "0.18.0",
+	"license": "SEE LICENSE IN LICENSE",
+	"engines": {
+		"vscode": "^1.60.0"
+	},
+	"browser": "./dist/browser/extension.js",
+	"main": "./dist/extension.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/microsoft/vscode-remote-repositories-github.git"
+	},
+	"bugs": {
+		"url": "https://github.com/microsoft/vscode-remote-repositories-github/issues"
+	},
+	"icon": "resources/remotehub.png",
+	"categories": [
+		"Other"
+	],
+	"enableProposedApi": true,
+	"preview": true,
+	"activationEvents": [
+		"onFileSystem:vscode-vfs",
+		"onFileSystem:github",
+		"onFileSystem:azurerepos",
+		"onFileSystem:vsck-fs",
+		"onSearch:vscode-vfs",
+		"onUri",
+		"onCommand:remoteHub.openRepository",
+		"onCommand:remoteHub.continueOn.openRepository",
+		"onCommand:remoteHub.addRepositoryToWorkspace",
+		"onCommand:remoteHub.continueOn.addRepositoryToWorkspace",
+		"onCommand:remoteHub.deleteAllLocalRepositoryData",
+		"onCommand:remoteHub.deleteLocalRepositoryData",
+		"onCommand:remoteHub.enableDebugLogging",
+		"onCommand:remoteHub.disableDebugLogging",
+		"onCommand:remoteHub.exportDebugInfo",
+		"onCommand:remoteHub.setContext",
+		"onCommand:remoteHub.notebook.continueOn",
+		"onView:remoteHub.views.workspaceRepositories",
+		"onAuthenticationRequest:azurerepos"
+	],
+	"extensionKind": [
+		"ui"
+	],
+	"capabilities": {
+		"virtualWorkspaces": true,
+		"untrustedWorkspaces": {
+			"supported": true
+		}
+	},
+	"contributes": {
+		"virtualWorkspaces": {
+			"menus": {
+				"continueOn": [
+					{
+						"command": "remoteHub.openOnDesktop",
+						"group": "navigation@0",
+						"when": "false && isWeb && remoteHub:hasVirtualFolders"
+					},
+					{
+						"command": "remoteHub.openOnWeb",
+						"group": "navigation@0",
+						"when": "false && !isWeb && remoteHub:hasVirtualFolders"
+					},
+					{
+						"command": "remoteHub.clone",
+						"group": "0_local@1",
+						"when": "remoteHub:hasVirtualFolders"
+					}
+				]
+			}
+		},
+		"configuration": {
+			"title": "GitHub Repositories",
+			"properties": {
+				"remoteHub.autoFetch.enabled": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "%config.autoFetch.enabled%"
+				},
+				"remoteHub.autoFetch.interval": {
+					"type": "number",
+					"default": 60,
+					"minimum": 15,
+					"markdownDescription": "%config.autoFetch.interval%"
+				},
+				"remoteHub.azureRepos.enabled": {
+					"type": "boolean",
+					"default": false,
+					"markdownDescription": "%config.azureRepos.enabled%"
+				},
+				"remoteHub.commitDirectlyWarning": {
+					"type": "string",
+					"default": "always",
+					"enum": [
+						"off",
+						"auto",
+						"always"
+					],
+					"enumDescriptions": [
+						"%config.commitDirectlyWarning.off%",
+						"%config.commitDirectlyWarning.auto%",
+						"%config.commitDirectlyWarning.always%"
+					],
+					"markdownDescription": "%config.commitDirectlyWarning%",
+					"scope": "window"
+				},
+				"remoteHub.logLevel": {
+					"type": "string",
+					"default": "warn",
+					"enum": [
+						"off",
+						"error",
+						"warn",
+						"info",
+						"debug"
+					],
+					"enumDescriptions": [
+						"%config.logLevel.off%",
+						"%config.logLevel.error%",
+						"%config.logLevel.warn%",
+						"%config.logLevel.info%",
+						"%config.logLevel.debug%"
+					],
+					"markdownDescription": "%config.logLevel%",
+					"scope": "window"
+				},
+				"remoteHub.richNavigation.enabled": {
+					"type": "boolean",
+					"default": false,
+					"markdownDescription": "%config.richNavigation.enabled%"
+				},
+				"remoteHub.search.download.corsProxy": {
+					"type": "object",
+					"properties": {
+						"github.com": {
+							"type": "string"
+						}
+					},
+					"default": "",
+					"markdownDescription": "%config.search.download.corsProxy%",
+					"scope": "application"
+				},
+				"remoteHub.search.download.sizeLimit": {
+					"type": "number",
+					"default": 100,
+					"markdownDescription": "%config.search.download.sizeLimit%"
+				},
+				"remoteHub.search.download.repoLimit": {
+					"type": "number",
+					"default": 4,
+					"markdownDescription": "%config.search.download.repoLimit%"
+				},
+				"remoteHub.staging.enabled": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "%config.staging.enabled%"
+				},
+				"remoteHub.staging.smart": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "%config.staging.smart%"
+				},
+				"remoteHub.experimental.prefetch": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "%config.experimental.prefetch%"
+				},
+				"remoteHub.experimental.fs.useTars": {
+					"type": "string",
+					"default": "ifAvailable",
+					"enum": [
+						"always",
+						"ifAvailable",
+						"never"
+					],
+					"enumDescriptions": [
+						"%config.experimental.fs.useTars.always%",
+						"%config.experimental.fs.useTars.ifAvailable%",
+						"%config.experimental.fs.useTars.never%"
+					],
+					"markdownDescription": "%config.experimental.fs.useTars%"
+				},
+				"remoteHub.experimental.useNewCommitApi": {
+					"type": "boolean",
+					"default": null,
+					"markdownDescription": "%config.experimental.useNewCommitApi%"
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "remoteHub.openRepository",
+				"title": "%commands.openRepository%",
+				"category": "%commands.category%",
+				"icon": "$(repo)"
+			},
+			{
+				"command": "remoteHub.continueOn.openRepository",
+				"title": "%commands.continueOn.openRepository%",
+				"category": "%commands.category%",
+				"icon": "$(repo)"
+			},
+			{
+				"command": "remoteHub.addRepositoryToWorkspace",
+				"title": "%commands.addRepositoryToWorkspace%",
+				"category": "%commands.category%",
+				"icon": "$(folder-opened)"
+			},
+			{
+				"command": "remoteHub.continueOn.addRepositoryToWorkspace",
+				"title": "%commands.continueOn.addRepositoryToWorkspace%",
+				"category": "%commands.category%",
+				"icon": "$(folder-opened)"
+			},
+			{
+				"command": "remoteHub.goToRepository",
+				"title": "%commands.goToRepository%",
+				"category": "%commands.category%",
+				"icon": "$(globe)"
+			},
+			{
+				"command": "remoteHub.openOnRemote",
+				"title": "%commands.openOnRemote%",
+				"category": "%commands.category%",
+				"icon": "$(globe)"
+			},
+			{
+				"command": "remoteHub.continueOn",
+				"title": "%commands.continueOn%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.openOnDesktop",
+				"title": "%commands.openOnDesktop%",
+				"category": "%commands.category%",
+				"icon": "$(vm)"
+			},
+			{
+				"command": "remoteHub.openOnWeb",
+				"title": "%commands.openOnWeb%",
+				"category": "%commands.category%",
+				"icon": "$(globe)"
+			},
+			{
+				"command": "remoteHub.applyPatch",
+				"title": "%commands.applyPatch%",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.exportPatch",
+				"title": "%commands.exportPatch%",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.clone",
+				"title": "%commands.clone%",
+				"category": "%commands.category%",
+				"icon": "$(repo-clone)"
+			},
+			{
+				"command": "remoteHub.createBranch",
+				"title": "%commands.createBranch%",
+				"category": "%commands.category%",
+				"icon": "$(add)",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.createBranchFrom",
+				"title": "%commands.createBranchFrom%",
+				"category": "%commands.category%",
+				"icon": "$(add)",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.fetch",
+				"title": "%commands.fetch%",
+				"category": "%commands.category%",
+				"icon": "$(sync)"
+			},
+			{
+				"command": "remoteHub.pull",
+				"title": "%commands.pull%",
+				"category": "%commands.category%",
+				"icon": "$(arrow-down)"
+			},
+			{
+				"command": "remoteHub.switchToBranch",
+				"title": "%commands.switchToBranch%",
+				"category": "%commands.category%",
+				"icon": "$(git-branch)",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.refresh",
+				"title": "%commands.refresh%",
+				"category": "%commands.category%",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "remoteHub.sync",
+				"title": "%commands.sync%",
+				"category": "%commands.category%",
+				"icon": "$(sync)"
+			},
+			{
+				"command": "remoteHub.configureIndexingAllowedRepos",
+				"title": "%commands.configureIndexingAllowedRepos%",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:enabledSomeSearchIndexes"
+			},
+			{
+				"command": "remoteHub.enableIndexing",
+				"title": "%commands.enableIndexing%",
+				"category": "%commands.category%",
+				"enablement": "!remoteHub:enabledAllSearchIndexes"
+			},
+			{
+				"command": "remoteHub.deleteAllLocalRepositoryData",
+				"title": "%commands.deleteAllLocalRepositoryData%",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasSearchIndexes"
+			},
+			{
+				"command": "remoteHub.deleteLocalRepositoryData",
+				"title": "%commands.deleteLocalRepositoryData%",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasSearchIndexes"
+			},
+			{
+				"command": "remoteHub.commit",
+				"title": "%commands.commit%",
+				"icon": "$(check)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.discardAllChanges",
+				"title": "%commands.discardAllChanges%",
+				"icon": "$(discard)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.discardChanges",
+				"title": "%commands.discardChanges%",
+				"icon": "$(discard)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.stageAllChanges",
+				"title": "%commands.stageAllChanges%",
+				"icon": "$(add)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.stageChanges",
+				"title": "%commands.stageChanges%",
+				"icon": "$(add)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.unstageAllChanges",
+				"title": "%commands.unstageAllChanges%",
+				"icon": "$(remove)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.unstageChanges",
+				"title": "%commands.unstageChanges%",
+				"icon": "$(remove)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.keepChanges",
+				"title": "%commands.keepChanges%",
+				"icon": "$(add)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.openChanges",
+				"title": "%commands.openChanges%",
+				"icon": "$(git-compare)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.openFile",
+				"title": "%commands.openFile%",
+				"icon": "$(go-to-file)",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.createPullRequest",
+				"title": "%commands.createPullRequest%",
+				"icon": "$(git-pull-request-create)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.createDraftPullRequest",
+				"title": "%commands.createDraftPullRequest%",
+				"icon": "$(git-pull-request-create)",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.timeline.openDiff",
+				"title": "%commands.timeline.openDiff%",
+				"icon": "$(compare-changes)",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.timeline.openOnGitHub",
+				"title": "%commands.timeline.openOnGitHub%",
+				"icon": "$(globe)",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.timeline.openOnAzureRepos",
+				"title": "%commands.timeline.openOnAzureRepos%",
+				"icon": "$(globe)",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.timeline.copyCommitId",
+				"title": "%commands.timeline.copyCommitId%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.timeline.copyCommitMessage",
+				"title": "%commands.timeline.copyCommitMessage%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.timeline.selectForCompare",
+				"title": "%commands.timeline.selectForCompare%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.timeline.compareWithSelected",
+				"title": "%commands.timeline.compareWithSelected%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.enableDebugLogging",
+				"title": "%commands.enableDebugLogging%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.disableDebugLogging",
+				"title": "%commands.disableDebugLogging%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.exportDebugInfo",
+				"title": "%commands.exportDebugInfo%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.views.workspaceRepositories.refresh",
+				"title": "%commands.refresh%",
+				"category": "%commands.category%",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "remoteHub.views.workspaceRepositories.open",
+				"title": "%commands.views.workspaceRepositories.open%",
+				"category": "%commands.category%",
+				"icon": "$(window)"
+			},
+			{
+				"command": "remoteHub.views.workspaceRepositories.openInNewWindow",
+				"title": "%commands.views.workspaceRepositories.openInNewWindow%",
+				"category": "%commands.category%",
+				"icon": "$(empty-window)"
+			},
+			{
+				"command": "remoteHub.views.workspaceRepositories.openChanges",
+				"title": "%commands.views.workspaceRepositories.openChanges%",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.views.workspaceRepositories.openFile",
+				"title": "%commands.views.workspaceRepositories.openFile%",
+				"category": "%commands.category%"
+			},
+			{
+				"command": "remoteHub.views.workspaceRepositories.applyAllChanges",
+				"title": "%commands.views.workspaceRepositories.applyAllChanges%",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.views.workspaceRepositories.applyChanges",
+				"title": "%commands.views.workspaceRepositories.applyChanges%",
+				"category": "%commands.category%",
+				"enablement": "remoteHub:hasWriteableScmProvider"
+			},
+			{
+				"command": "remoteHub.views.workspaceRepositories.remove",
+				"title": "%commands.views.workspaceRepositories.remove%",
+				"category": "%commands.category%",
+				"icon": "$(close)"
+			},
+			{
+				"command": "remoteHub.notebook.continueOn",
+				"title": "%commands.notebook.continueOn%",
+				"category": "%commands.category%",
+				"icon": "$(play)"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "remoteHub.openRepository",
+					"when": "!remoteName"
+				},
+				{
+					"command": "remoteHub.continueOn.openRepository",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.addRepositoryToWorkspace",
+					"when": "false && virtualWorkspace"
+				},
+				{
+					"command": "remoteHub.continueOn.addRepositoryToWorkspace",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.goToRepository",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.openOnRemote",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.continueOn",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.openOnDesktop",
+					"when": "false && isWeb && remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.openOnWeb",
+					"when": "!isWeb && remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.clone",
+					"when": "!isWeb && remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.createBranch",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.createBranchFrom",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.fetch",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.pull",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.switchToBranch",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.refresh",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.sync",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.commit",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.createPullRequest",
+					"when": "remoteHub:hasVirtualFolders && !remoteHub:hasPullRequestExtension"
+				},
+				{
+					"command": "remoteHub.createDraftPullRequest",
+					"when": "remoteHub:hasVirtualFolders && !remoteHub:hasPullRequestExtension"
+				},
+				{
+					"command": "remoteHub.discardAllChanges",
+					"when": "remoteHub:hasVirtualFolders"
+				},
+				{
+					"command": "remoteHub.exportPatch",
+					"when": "remoteHub:hasWriteableScmProvider"
+				},
+				{
+					"command": "remoteHub.applyPatch",
+					"when": "remoteHub:hasWriteableScmProvider"
+				},
+				{
+					"command": "remoteHub.discardChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.stageAllChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.stageChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.unstageAllChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.unstageChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.keepChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.openChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.openFile",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.timeline.openDiff",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.timeline.openOnGitHub",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.timeline.openOnAzureRepos",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.timeline.copyCommitId",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.timeline.copyCommitMessage",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.timeline.selectForCompare",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.timeline.compareWithSelected",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.enableDebugLogging",
+					"when": "config.remoteHub.logLevel != debug"
+				},
+				{
+					"command": "remoteHub.disableDebugLogging",
+					"when": "config.remoteHub.logLevel != off && config.remoteHub.logLevel != error && config.remoteHub.logLevel != warn"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.refresh",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.open",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.openInNewWindow",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.openChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.openFile",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.applyAllChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.applyChanges",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.remove",
+					"when": "false"
+				},
+				{
+					"command": "remoteHub.notebook.continueOn",
+					"when": "false"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "remoteHub.openFile",
+					"when": "remoteHub:hasVirtualFolders && isInDiffEditor && resourceScheme == vscode-vfs",
+					"group": "navigation"
+				}
+			],
+			"menuBar/home": [
+				{
+					"command": "remoteHub.goToRepository",
+					"when": "remoteHub:hasVirtualFolders"
+				}
+			],
+			"scm/title": [
+				{
+					"command": "remoteHub.commit",
+					"group": "navigation@1",
+					"when": "scmProvider =~ /^remoteHub:/"
+				},
+				{
+					"command": "remoteHub.createPullRequest",
+					"group": "navigation@2",
+					"when": "scmProvider =~ /^remoteHub:/ && !remoteHub:hasPullRequestExtension"
+				},
+				{
+					"command": "remoteHub.refresh",
+					"group": "navigation@3",
+					"when": "scmProvider =~ /^remoteHub:/"
+				},
+				{
+					"command": "remoteHub.pull",
+					"group": "1_header@1",
+					"when": "scmProvider =~ /^remoteHub:/"
+				},
+				{
+					"command": "remoteHub.fetch",
+					"group": "1_header@2",
+					"when": "scmProvider =~ /^remoteHub:/"
+				},
+				{
+					"submenu": "remoteHub/commit",
+					"group": "2_main@1",
+					"when": "scmProvider =~ /^remoteHub:/"
+				},
+				{
+					"submenu": "remoteHub/changes",
+					"group": "2_main@2",
+					"when": "scmProvider =~ /^remoteHub:/"
+				},
+				{
+					"submenu": "remoteHub/branch",
+					"group": "2_main@3",
+					"when": "scmProvider =~ /^remoteHub:/"
+				},
+				{
+					"submenu": "remoteHub/pullRequest",
+					"group": "2_main@4",
+					"when": "scmProvider =~ /^remoteHub:/"
+				},
+				{
+					"submenu": "remoteHub/patch",
+					"group": "2_main@5",
+					"when": "scmProvider =~ /^remoteHub:/"
+				}
+			],
+			"scm/resourceGroup/context": [
+				{
+					"command": "remoteHub.discardAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup =~ /changes|conflicts|staged/",
+					"group": "inline@0"
+				},
+				{
+					"command": "remoteHub.stageAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup == changes && config.remoteHub.staging.enabled",
+					"group": "inline@99"
+				},
+				{
+					"command": "remoteHub.unstageAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup == staged && config.remoteHub.staging.enabled",
+					"group": "inline@99"
+				},
+				{
+					"command": "remoteHub.stageAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup == changes && config.remoteHub.staging.enabled",
+					"group": "1_modification@0"
+				},
+				{
+					"command": "remoteHub.unstageAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup == staged && config.remoteHub.staging.enabled",
+					"group": "1_modification@1"
+				},
+				{
+					"command": "remoteHub.discardAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup =~ /changes|conflicts|staged/",
+					"group": "1_modification@99"
+				}
+			],
+			"scm/resourceState/context": [
+				{
+					"command": "remoteHub.openFile",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup =~ /changes|staged/",
+					"group": "inline@0"
+				},
+				{
+					"command": "remoteHub.keepChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup == conflicts",
+					"group": "inline@0"
+				},
+				{
+					"command": "remoteHub.discardChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup =~ /changes|conflicts|staged/",
+					"group": "inline@1"
+				},
+				{
+					"command": "remoteHub.stageChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup == changes && config.remoteHub.staging.enabled",
+					"group": "inline@99"
+				},
+				{
+					"command": "remoteHub.unstageChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup == staged && config.remoteHub.staging.enabled",
+					"group": "inline@99"
+				},
+				{
+					"command": "remoteHub.openChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup =~ /changes|conflicts|staged/",
+					"group": "navigation@0"
+				},
+				{
+					"command": "remoteHub.openFile",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup =~ /changes|conflicts|staged/",
+					"group": "navigation@1"
+				},
+				{
+					"command": "remoteHub.keepChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup == conflicts",
+					"group": "1_modification@0"
+				},
+				{
+					"command": "remoteHub.discardChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup =~ /changes|conflicts|staged/",
+					"group": "1_modification@1"
+				},
+				{
+					"command": "remoteHub.exportPatch",
+					"when": "scmProvider =~ /^remoteHub:/ && scmResourceGroup =~ /changes|conflicts|staged/",
+					"group": "2_export@0"
+				}
+			],
+			"statusBar/remoteIndicator": [
+				{
+					"command": "remoteHub.continueOn",
+					"when": "remoteHub:hasVirtualFolders",
+					"group": "virtualfs_44_vscode-vfs_0_local@1"
+				},
+				{
+					"command": "remoteHub.continueOn.openRepository",
+					"when": "!remoteName",
+					"group": "virtualfs_44_vscode-vfs_1_open@1"
+				},
+				{
+					"command": "remoteHub.continueOn.addRepositoryToWorkspace",
+					"when": "virtualWorkspace && false",
+					"group": "virtualfs_44_vscode-vfs_1_open@2"
+				}
+			],
+			"timeline/item/context": [
+				{
+					"command": "remoteHub.timeline.openOnGitHub",
+					"group": "inline",
+					"when": "remoteHub:hasVirtualFolders && timelineItem =~ /vscode-vfs:github:file:commit\\b/ && !listMultiSelection"
+				},
+				{
+					"command": "remoteHub.timeline.openOnAzureRepos",
+					"group": "inline",
+					"when": "remoteHub:hasVirtualFolders && timelineItem =~ /vscode-vfs:azurerepos:file:commit\\b/ && !listMultiSelection"
+				},
+				{
+					"command": "remoteHub.timeline.openDiff",
+					"group": "1_actions@1",
+					"when": "remoteHub:hasVirtualFolders && timelineItem =~ /vscode-vfs:(.+?):file\\b/ && !listMultiSelection"
+				},
+				{
+					"command": "remoteHub.timeline.openOnGitHub",
+					"group": "1_actions@2",
+					"when": "remoteHub:hasVirtualFolders && timelineItem =~ /vscode-vfs:github:file:commit\\b/ && !listMultiSelection"
+				},
+				{
+					"command": "remoteHub.timeline.openOnAzureRepos",
+					"group": "1_actions@2",
+					"when": "remoteHub:hasVirtualFolders && timelineItem =~ /vscode-vfs:azurerepos:file:commit\\b/ && !listMultiSelection"
+				},
+				{
+					"command": "remoteHub.timeline.compareWithSelected",
+					"group": "3_compare@1",
+					"when": "remoteHub:hasVirtualFolders && remoteHub.timeline.selectedForCompare && timelineItem =~ /vscode-vfs:(.+?):file\\b/ && !listMultiSelection"
+				},
+				{
+					"command": "remoteHub.timeline.selectForCompare",
+					"group": "3_compare@2",
+					"when": "remoteHub:hasVirtualFolders && timelineItem =~ /vscode-vfs:(.+?):file\\b/ && !listMultiSelection"
+				},
+				{
+					"command": "remoteHub.timeline.copyCommitId",
+					"group": "5_copy@1",
+					"when": "remoteHub:hasVirtualFolders && timelineItem =~ /vscode-vfs:(.+?):file:commit\\b/ && !listMultiSelection"
+				},
+				{
+					"command": "remoteHub.timeline.copyCommitMessage",
+					"group": "5_copy@2",
+					"when": "remoteHub:hasVirtualFolders && timelineItem =~ /vscode-vfs:(.+?):file:commit\\b/ && !listMultiSelection"
+				}
+			],
+			"view/title": [
+				{
+					"command": "remoteHub.views.workspaceRepositories.refresh",
+					"when": "view == remoteHub.views.workspaceRepositories",
+					"group": "navigation@1"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "remoteHub.views.workspaceRepositories.open",
+					"alt": "remoteHub.views.workspaceRepositories.openInNewWindow",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepositories\\b/",
+					"group": "inline@1"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.open",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepositories\\b/",
+					"group": "navigation@1"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.openInNewWindow",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepositories\\b/",
+					"group": "navigation@2"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.open",
+					"alt": "remoteHub.views.workspaceRepositories.openInNewWindow",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepository\\b(?!.*?\\b\\+active\\b)/",
+					"group": "inline@1"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.openInNewWindow",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepository\\b(?=.*?\\b\\+active\\b)/",
+					"group": "inline@1"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.open",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepository\\b(?!.*?\\b\\+active\\b)/",
+					"group": "navigation@1"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.openInNewWindow",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepository\\b/",
+					"group": "navigation@2"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.applyAllChanges",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepository\\b(?=.*?\\b\\+apply\\b)/",
+					"group": "1_modification@2"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.remove",
+					"when": "viewItem =~ /remoteHub:viewItem:workspaceRepository\\b(?!.*?\\b\\+active\\b)/",
+					"group": "8_actions@1"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.openChanges",
+					"when": "viewItem =~ /remoteHub:viewItem:change\\b/",
+					"group": "navigation@1"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.openFile",
+					"when": "viewItem =~ /remoteHub:viewItem:change\\b/",
+					"group": "navigation@1"
+				},
+				{
+					"command": "remoteHub.views.workspaceRepositories.applyChanges",
+					"when": "viewItem =~ /remoteHub:viewItem:change\\b(?=.*?\\b\\+apply\\b)/",
+					"group": "1_modification@1"
+				}
+			],
+			"remoteHub/branch": [
+				{
+					"command": "remoteHub.createBranch",
+					"group": "branch@1"
+				},
+				{
+					"command": "remoteHub.createBranchFrom",
+					"group": "branch@2"
+				}
+			],
+			"remoteHub/changes": [
+				{
+					"command": "remoteHub.stageAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && config.remoteHub.staging.enabled",
+					"group": "changes@0"
+				},
+				{
+					"command": "remoteHub.unstageAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/ && config.remoteHub.staging.enabled",
+					"group": "changes@1"
+				},
+				{
+					"command": "remoteHub.discardAllChanges",
+					"when": "scmProvider =~ /^remoteHub:/",
+					"group": "changes@99"
+				}
+			],
+			"remoteHub/commit": [
+				{
+					"command": "remoteHub.commit",
+					"group": "commit@1"
+				}
+			],
+			"remoteHub/patch": [
+				{
+					"command": "remoteHub.applyPatch",
+					"when": "scmProvider =~ /^remoteHub:/",
+					"group": "1_modification@0"
+				},
+				{
+					"command": "remoteHub.exportPatch",
+					"when": "scmProvider =~ /^remoteHub:/",
+					"group": "1_modification@1"
+				}
+			],
+			"remoteHub/pullRequest": [
+				{
+					"command": "remoteHub.createPullRequest",
+					"when": "scmProvider =~ /^remoteHub:/ && !remoteHub:hasPullRequestExtension",
+					"group": "1_modification@0"
+				},
+				{
+					"command": "remoteHub.createDraftPullRequest",
+					"when": "scmProvider =~ /^remoteHub:/ && !remoteHub:hasPullRequestExtension",
+					"group": "1_modification@1"
+				}
+			],
+			"notebook/cell/executePrimary": [
+				{
+					"command": "remoteHub.notebook.continueOn",
+					"when": "isWeb && remoteHub:hasVirtualFolders && notebookType == jupyter-notebook && notebookKernelCount == 0",
+					"group": "inline"
+				}
+			]
+		},
+		"submenus": [
+			{
+				"id": "remoteHub/branch",
+				"when": "scmProvider =~ /^remoteHub:/",
+				"label": "%submenu.branch%"
+			},
+			{
+				"id": "remoteHub/changes",
+				"when": "scmProvider =~ /^remoteHub:/",
+				"label": "%submenu.changes%"
+			},
+			{
+				"id": "remoteHub/commit",
+				"when": "scmProvider =~ /^remoteHub:/",
+				"label": "%submenu.commit%"
+			},
+			{
+				"id": "remoteHub/patch",
+				"when": "scmProvider =~ /^remoteHub:/",
+				"label": "%submenu.patch%"
+			},
+			{
+				"id": "remoteHub/pullRequest",
+				"when": "scmProvider =~ /^remoteHub:/",
+				"label": "%submenu.pullRequest%"
+			}
+		],
+		"resourceLabelFormatters": [
+			{
+				"scheme": "github",
+				"authority": "{github,github+*}",
+				"formatting": {
+					"label": "${path}",
+					"separator": "/",
+					"workspaceSuffix": "GitHub",
+					"stripPathStartingSeparator": true
+				}
+			},
+			{
+				"scheme": "vscode-vfs",
+				"authority": "{github,github+*}",
+				"formatting": {
+					"label": "${path}",
+					"separator": "/",
+					"workspaceSuffix": "GitHub",
+					"stripPathStartingSeparator": true
+				}
+			},
+			{
+				"scheme": "azurerepos",
+				"authority": "{azurerepos,azurerepos+*}",
+				"formatting": {
+					"label": "${path}",
+					"separator": "/",
+					"workspaceSuffix": "Azure Repos",
+					"stripPathStartingSeparator": true
+				}
+			},
+			{
+				"scheme": "vscode-vfs",
+				"authority": "{azurerepos,azurerepos+*}",
+				"formatting": {
+					"label": "${path}",
+					"separator": "/",
+					"workspaceSuffix": "Azure Repos",
+					"stripPathStartingSeparator": true
+				}
+			},
+			{
+				"scheme": "vsck-fs",
+				"formatting": {
+					"label": "${path}",
+					"separator": "/",
+					"workspaceSuffix": "RichNav",
+					"stripPathStartingSeparator": true
+				}
+			}
+		],
+		"views": {
+			"remote": [
+				{
+					"id": "remoteHub.views.workspaceRepositories",
+					"name": "GitHub Repositories",
+					"group": "targets@1",
+					"remoteName": "virtualfs"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "explorer",
+				"contents": "%viewsWelcome.explorer%",
+				"when": "!isWeb && !remoteName",
+				"group": "5_scm@2"
+			},
+			{
+				"view": "explorer",
+				"contents": "%viewsWelcome.explorer.web%",
+				"when": "isWeb && !remoteName",
+				"group": "5_scm@2"
+			},
+			{
+				"view": "scm",
+				"contents": "%viewsWelcome.scm.web%",
+				"when": "!remoteHub:hasVirtualFolders && isWeb && !remoteName"
+			},
+			{
+				"view": "debug",
+				"contents": "%viewsWelcome.debug%",
+				"when": "virtualWorkspace && !debuggersAvailable || isWeb && !remoteName && !debuggersAvailable"
+			},
+			{
+				"view": "debug",
+				"contents": "%viewsWelcome.debug.continueOn%",
+				"when": "remoteHub:hasVirtualFolders"
+			},
+			{
+				"view": "terminal",
+				"contents": "%viewsWelcome.terminal%",
+				"when": "virtualWorkspace || isWeb && !remoteName"
+			},
+			{
+				"view": "terminal",
+				"contents": "%viewsWelcome.terminal.continueOn%",
+				"when": "remoteHub:hasVirtualFolders"
+			},
+			{
+				"view": "remoteHub.views.workspaceRepositories",
+				"contents": "%viewsWelcome.remoteExplorer%",
+				"when": "!remoteHub:hasRecentRepositories"
+			}
+		],
+		"colors": [
+			{
+				"id": "remoteHub.decorations.addedForegroundColor",
+				"description": "%colors.added%",
+				"defaults": {
+					"light": "#587c0c",
+					"dark": "#81b88b",
+					"highContrast": "#1b5225"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.modifiedForegroundColor",
+				"description": "%colors.modified%",
+				"defaults": {
+					"light": "#895503",
+					"dark": "#E2C08D",
+					"highContrast": "#E2C08D"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.deletedForegroundColor",
+				"description": "%colors.deleted%",
+				"defaults": {
+					"light": "#ad0707",
+					"dark": "#c74e39",
+					"highContrast": "#c74e39"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.conflictForegroundColor",
+				"description": "%colors.conflict%",
+				"defaults": {
+					"light": "#ad0707",
+					"dark": "#e4676b",
+					"highContrast": "#c74e39"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.incomingAddedForegroundColor",
+				"description": "%colors.incomingAdded%",
+				"defaults": {
+					"light": "#587c0c",
+					"dark": "#81b88b",
+					"highContrast": "#1b5225"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.incomingModifiedForegroundColor",
+				"description": "%colors.incomingModified%",
+				"defaults": {
+					"light": "#895503",
+					"dark": "#E2C08D",
+					"highContrast": "#E2C08D"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.incomingDeletedForegroundColor",
+				"description": "%colors.incomingDeleted%",
+				"defaults": {
+					"light": "#ad0707",
+					"dark": "#c74e39",
+					"highContrast": "#c74e39"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.incomingRenamedForegroundColor",
+				"description": "%colors.incomingRenamed%",
+				"defaults": {
+					"light": "#007100",
+					"dark": "#73C991",
+					"highContrast": "#73C991"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.possibleConflictForegroundColor",
+				"description": "%colors.possibleConflict%",
+				"defaults": {
+					"dark": "#b15e35",
+					"light": "#b15e35",
+					"highContrast": "#ff874c"
+				}
+			},
+			{
+				"id": "remoteHub.decorations.workspaceRepositoriesView.hasUncommittedChangesForegroundColor",
+				"description": "%colors.workspaceRepositoriesView.hasUncommittedChanges%",
+				"defaults": {
+					"light": "#895503",
+					"dark": "#E2C08D",
+					"highContrast": "#E2C08D"
+				}
+			}
+		],
+		"jsonValidation": [
+			{
+				"fileMatch": "package.json",
+				"url": "./schemas/package.schema.json"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "yarn run bundle",
+		"bundle": "webpack --mode production --env esbuild",
+		"clean": "npx rimraf .eslintcache* tsconfig*.tsbuildinfo",
+		"compile": "webpack --mode development --env esbuild",
+		"lint": "eslint --fix --cache --config .eslintrc.json --ignore-pattern src/env/browser/**/* src/**/*.ts",
+		"lint:browser": "eslint --fix --cache --cache-location .eslintcache.browser --config .eslintrc.browser.json --ignore-pattern src/env/node/**/* src/**/*.ts",
+		"package": "npx vsce package --yarn",
+		"package-insiders": "yarn run patch-insiders && npx vsce package --yarn",
+		"patch-insiders": "node ./scripts/applyPatchForInsiders.js",
+		"pretty": "prettier --config .prettierrc --loglevel warn --write .",
+		"pub": "npx vsce publish --yarn --noVerify",
+		"serve": "npx serve --cors -l 5000",
+		"tunnel": "npx localtunnel -p 5000",
+		"update-dts": "pushd \"src/@types\" && npx vscode-dts dev && popd",
+		"update-dts:master": "pushd \"src/@types\" && npx vscode-dts master && popd",
+		"watch": "webpack --watch --mode development --env esbuild"
+	},
+	"dependencies": {
+		"@jkearl/tar": "1.0.5",
+		"@octokit/core": "3.5.1",
+		"@ungap/url-search-params": "0.2.2",
+		"buffer": "6.0.3",
+		"diff": "5.0.0",
+		"file-type": "16.5.3",
+		"fuzzysort": "1.1.4",
+		"lodash-es": "4.17.21",
+		"micromatch": "4.0.4",
+		"node-diff3": "3.0.0",
+		"node-fetch": "3.0.0",
+		"pako": "2.0.4",
+		"path-browserify": "1.0.1",
+		"process": "0.11.10",
+		"uuid": "^8.3.2",
+		"vscode-extension-telemetry": "0.4.2",
+		"vscode-languageserver-types": "3.16.0",
+		"vscode-nls": "5.0.0"
+	},
+	"devDependencies": {
+		"@types/diff": "5.0.1",
+		"@types/lodash-es": "4.17.5",
+		"@types/micromatch": "4.0.2",
+		"@types/node": "14.14.45",
+		"@types/pako": "1.0.2",
+		"@types/rimraf": "3.0.2",
+		"@types/uuid": "^8.3.1",
+		"@types/vscode": "1.60.0",
+		"@typescript-eslint/eslint-plugin": "4.32.0",
+		"@typescript-eslint/parser": "4.32.0",
+		"esbuild": "0.13.3",
+		"esbuild-loader": "2.15.1",
+		"eslint": "7.32.0",
+		"eslint-cli": "1.1.1",
+		"eslint-config-prettier": "8.3.0",
+		"eslint-import-resolver-webpack": "0.13.1",
+		"eslint-plugin-import": "2.24.2",
+		"fork-ts-checker-webpack-plugin": "6.3.3",
+		"json5": "2.2.0",
+		"prettier": "2.4.1",
+		"terser-webpack-plugin": "5.2.4",
+		"ts-loader": "9.2.6",
+		"typescript": "4.4.3",
+		"vscode-nls-dev": "3.3.2",
+		"webpack": "5.55.1",
+		"webpack-cli": "4.2.0"
+	},
+	"__metadata": {
+		"id": "fc7d7e85-2e58-4c1c-97a3-2172ed9a77cd",
+		"publisherId": "7c1c19cd-78eb-4dfb-8999-99caf7679002",
+		"publisherDisplayName": "GitHub",
+		"installedTimestamp": 1636204064248
+	}
+}

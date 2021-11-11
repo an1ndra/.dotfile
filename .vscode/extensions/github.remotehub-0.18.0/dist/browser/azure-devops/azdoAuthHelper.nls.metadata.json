@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"You have been signed out because reading stored authentication information failed."
+	],
+	"keys": [
+		"signOut"
+	],
+	"filePath": "azure-devops\\azdoAuthHelper"
+}
