@@ -10,6 +10,10 @@ sudo add-apt-repository ppa:maarten-fonville/android-studio -y
 sudo apt update
 sudo apt install android-studio
 ```
+# Download linux system monitor system GUI
+```bash
+sudo wget -O monitor.deb https://webwerks.dl.sourceforge.net/project/system-monitoring-center/v0.1.21-beta19/system-monitoring-center_0.1.21~beta19_amd64.deb
+```
 
 # Download Intellij
 ```bash
