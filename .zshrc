@@ -1,13 +1,15 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
+source /home/anindra/.oh-my-zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+
+
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
-
 # Path to your oh-my-zsh installation.
 export ZSH="/home/anindra/.oh-my-zsh"
 export DEFAULT_USER="$(whoami)"
@@ -108,8 +110,10 @@ gradle
 colored-man-pages
 colorize
 branch
-zsh-autocomplete
-# zsh-autosuggestions
+zsh-autosuggestions 
+zsh-syntax-highlighting
+web-search
+# zsh-autocomplete
 )
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#B1B1B1,bg=underline"
 
@@ -162,7 +166,7 @@ export PATH="$HOME/.radicle/bin:$PATH"
 # zsh-autocomplete
 
 #!/bin/zsh
-source /home/anindra/.oh-my-zsh/custom/plugins/zsh-autocomplete
+# source /home/anindra/.oh-my-zsh/custom/plugins/zsh-autocomplete
 # The code below sets all of `zsh-autocomplete`'s settings to their default
 # values. To change a setting, copy it into your `.zshrc` file.
 
@@ -224,14 +228,14 @@ source /home/anindra/.oh-my-zsh/plugins/zsh-interactive-cd/zsh-interactive-cd.pl
 #
 
 # Up arrow:
-bindkey '\e[A' up-line-or-search
-bindkey '\eOA' up-line-or-search
+#   bindkey '\e[A' up-line-or-search
+#   bindkey '\eOA' up-line-or-search
 # up-line-or-search:  Open history menu.
 # up-line-or-history: Cycle to previous history line.
 
 # Down arrow:
-bindkey '\e[B' down-line-or-select
-bindkey '\eOB' down-line-or-select
+#  bindkey '\e[B' down-line-or-select
+#  bindkey '\eOB' down-line-or-select
 # down-line-or-select:  Open completion menu.
 # down-line-or-history: Cycle to next history line.
 
@@ -248,3 +252,12 @@ bindkey '\0' list-expand
 bindkey -M menuselect '\r' .accept-line
 # .accept-line: Accept command line.
 # accept-line:  Accept selection and exit menu.
+#
+# typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+# autoload -U compinit && compinit
+skip_global_compinit=1
+# Search engine
+ZSH_WEB_SEARCH_ENGINES=( ddg "https://www.duckduckgo.com/?q=")
+POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+export SPRING_HOME=/opt/spring-2.6.2
+export PATH=$SPRING_HOME/bin:$PATH
