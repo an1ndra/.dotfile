@@ -4,6 +4,12 @@ I like to try different type of linux OS so i can't stick in one linux distro.Th
 ```bash
 sudo apt-get install vlc nvim git gimp telegram virtualbox htop xfce4-terminal openjdk-11-jdk-headless neofetch curl wget tmux -y
 ```
+
+# Dwonload codecarrot (a GUI git client)
+```bash
+sudo wget -O codecarrot.deb https://objects.githubusercontent.com/github-production-release-asset-2e65be/183869437/0d381b00-a1a4-11e9-8b77-099ae2a17f10?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20220121%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220121T082427Z&X-Amz-Expires=300&X-Amz-Signature=9d4170994e2c641947cadd4e5f44523a6b956654afacaa61ba53cc7348386ff0&X-Amz-SignedHeaders=host&actor_id=36324543&key_id=0&repo_id=183869437&response-content-disposition=attachment%3B%20filename%3Dthermal-linux-amd64-0.0.4.deb&response-content-type=application%2Foctet-stream
+```
+
 # Download android-studio
 ```bash
 sudo add-apt-repository ppa:maarten-fonville/android-studio -y
