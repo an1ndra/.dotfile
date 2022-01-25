@@ -1,6 +1,3 @@
-" set leader key
-let g:mapleader = "\<Space>"
-
 syntax enable                           " Enables syntax highlighing
 set hidden                              " Required to keep multiple buffers open multiple buffers
 set nowrap                              " Display long lines as just one line
@@ -27,13 +24,10 @@ set cursorline                          " Enable highlighting of the current lin
 set background=dark                     " tell vim what the background color looks like
 set showtabline=2                       " Always show tabs
 set noshowmode                          " We don't need to see things like -- INSERT -- anymore
-set nobackup                            " This is recommended by coc
-set nowritebackup                       " This is recommended by coc
 set updatetime=300                      " Faster completion
 set timeoutlen=500                      " By default timeoutlen is 1000 ms
 set formatoptions-=cro                  " Stop newline continution of comments
 set clipboard=unnamedplus               " Copy paste between vim and everything else
-
 " Important
 set relativenumber
 set number
@@ -41,17 +35,16 @@ set smarttab
 set cindent
 set tabstop=2
 set shiftwidth=2
+autocmd FileType html,css EmmetInstall "Emmet plugin vim
 " always uses spaces instead of tab characters
  set expandtab
-"
-" " sync open file with NERDTree
-" " " Check if NERDTree is open or active
+" sync open file with NERDTree
+" Check if NERDTree is open or active
  function! IsNERDTreeOpen()        
    return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
 endfunction
-
 " Call NERDTreeFind iff NERDTree is active, current window contains a
-"   modifiable
+" modifiable
 " file, and we're not in vimdiff
 function! SyncTree()
 if &modifiable && IsNERDTreeOpen() && strlen(expand('%')) > 0 && !&diff
@@ -59,18 +52,33 @@ NERDTreeFind
 wincmd p
 endif
 endfunction
-
 " Highlight currently open buffer in NERDTree
 autocmd BufEnter * call SyncTree()
-"
+" Start NERDTree and put the cursor back in the other window.
+autocmd VimEnter * NERDTree | wincmd p
 " from readme
 " if hidden is not set, TextEdit might fail.
 set hidden " Some servers have issues with backup files, see #649 set nobackup set nowritebackup " Better display formessages set cmdheight=2 " You will have bad experience for diagnostic messages when it's default 4000.
 set updatetime=300
-"
 " don't give |ins-completion-menu| messages.
 set shortmess+=c
-
 " always show signcolumns
 set signcolumn=yes
 
+" NOTE: This is airline configuration file
+" enable tabline
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#left_sep = ''
+let g:airline#extensions#tabline#left_alt_sep = ''
+let g:airline#extensions#tabline#right_sep = ''
+let g:airline#extensions#tabline#right_alt_sep = ''
+" enable powerline fonts
+let g:airline_powerline_fonts = 1
+let g:airline_left_sep = ''
+let g:airline_right_sep = ''
+" Switch to your current theme
+let g:airline_theme = 'onedark'
+" Always show tabs
+set showtabline=2
+" We don't need to see things like -- INSERT -- anymore
+set noshowmode
