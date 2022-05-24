@@ -1,0 +1,55 @@
+" setting
+inoremap jk <ESC>
+let mapleader=" "
+set nu
+set relativenumber
+set incsearch
+
+
+set clipboard+=unnamed
+
+set clipboard+=ideaput
+nnoremap \e :e ~/.ideavimrc<CR>
+nnoremap \r :action IdeaVim.ReloadVimRc.reload<CR>
+
+" Plugins
+set NERDTree
+set highlightedyank
+
+
+" Plugin settings
+let g:highlightedyank_highlight_duration = "200"
+
+
+" Idea specific settings
+set ideajoin
+set ideamarks
+set ideastatusicon=gray
+set idearefactormode=keep
+set showmode
+
+
+" Keep visual selection
+vnoremap < <gv
+vnoremap > >gv
+
+nnoremap <c-z> :action ToggleDistractionFreeMode<CR>
+nnoremap <c-\> :action SplitVertically<CR>
+nnoremap <c--> :action SplitHorizontally<CR>
+nnoremap <c-=> :action Unsplit<CR>
+nnoremap <c-m> :action MoveEditorToOppositeTabGroup<CR>
+sethandler <c-j> a:vim
+sethandler <c-k> a:vim
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <s-TAB> :action PreviousTab<CR>
+nnoremap <TAB> :action NextTab<CR>
+nnoremap [[ :action MethodUp<CR>
+nnoremap ]] :action MethodDown<CR>
+nnoremap gl :action ShowIntentionActions<CR>
+
+nnoremap <leader> :action run<CR>
+nnoremap <leader>e :NERDTreeToggle<CR>
+nnoremap <leader>q :NERDTreeClose<CR>
