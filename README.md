@@ -2,8 +2,11 @@ I like to try different type of linux OS so i can't stick in one linux distro.Th
 
 # Install vlc vim git gimp telegram virtualbox code 🤖
 ```bash
-sudo apt-get install vlc nvim git gimp telegram virtualbox htop xfce4-terminal openjdk-11-jdk-headless neofetch curl wget tmux -y
+sudo apt-get install vlc neovim git gimp telegram virtualbox htop xfce4-terminal openjdk-11-jdk-headless neofetch curl wget tmux -y
 ```
+
+# VIM shortcuts
+* [vim-key-sheat.md](https://github.com/meanindra/.dotfile/blob/master/vim-key-sheat.md)
 
 # Dwonload codecarrot (a GUI git client)
 ```bash
